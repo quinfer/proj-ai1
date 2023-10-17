@@ -133,19 +133,223 @@ div.csl-indent {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Understand the creditworthiness of a customer is a key task for banks. In this project, we will use the data from a German bank to build a credit scoring model to predict the probability of default. The data is from <a href="https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)">UCI Machine Learning Repository</a>. The data contains 1000 entries with 20 features. The features are a mix of numeric and categorical variables. The target variable is a binary variable indicating whether the customer is a good or bad credit risk. The data is split into 700 training and 300 testing samples. The goal is to build a model to predict the probability of default for the testing samples. While extension of credit can be traced back to babylonian times, the history of credit scoring classification can be traced back to a 1941 study distinguish good loans from bad loans <span class="citation" data-cites="crook.2006">(<a href="#ref-crook.2006" role="doc-biblioref">Crook, Edelman, and Thomas 2007</a>)</span>. Since then there has been a</p>
-<p>Predicting the probability of default using machine learing techniques has a long history in finance. The first credit scoring model was developed in 1958 by Fair Isaac Corporation (FICO). The FICO score is still the most widely used credit score in the world. The FICO score is based on a logistic regression model. In this project, we will build a logistic regression model and compare its performance with other machine learning models.</p>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
+<p>Understand the creditworthiness of a customer is a key task for banks. In this project, we will use the data from a German bank to build a credit scoring model to predict the probability of default. The data is from <a href="https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)">UCI Machine Learning Repository</a>. The data contains 1000 entries with 20 features. The features are a mix of numeric and categorical variables. The target variable is a binary variable indicating whether the customer is a good or bad credit risk. The data is split into 700 training and 300 testing samples. The goal is to build a model to predict the probability of default for the testing samples.</p>
+<p>While extension of credit can be traced back to babylonian times, the history of credit scoring classification can be traced back to a 1941 study distinguish good loans from bad loans <span class="citation" data-cites="durand.1941 crook.2006">(<a href="#ref-durand.1941" role="doc-biblioref">Durand 1941</a>; <a href="#ref-crook.2006" role="doc-biblioref">Crook, Edelman, and Thomas 2007</a>)</span>. The first credit scoring model was developed in 1958 by Fair Isaac Corporation (FICO). The FICO score is still the most widely used credit score in the world. The FICO score is based on a logistic regression model. In this project, we will build a logistic regression model and compare its performance with other machine learning models.</p>
+<p>To understand the modelling of credit risk using artificial intelligence (AI) and machine learning we first perform a systematic literature review using using bibliometric techniques on the measure of science. Specifically we using the python package <code>pybliometrics</code> to query the Scopus database using their API.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pybliometrics.scopus <span class="im">import</span> ScopusSearch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> <span class="vs">r' TITLE-ABS-KEY(("artificial intelligence" OR "machine learning") AND ("credit scoring"))'</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>s<span class="op">=</span>ScopusSearch(query)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(s.get_results_size()) </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df<span class="op">=</span>pd.DataFrame(s.results)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">'scopus_2023.csv'</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>jcr<span class="op">=</span>pd.read_csv(<span class="st">'jcr_2021.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>621</code></pre>
 </div>
+</div>
+<p>The above code using the Scopus API to perform an initital literature review of application of AI and machine learning in credit scoring. Using a Scopus search <code>TITLE-ABS-KEY(("artificial intelligence" OR "machine learning") AND ("credit risk" OR "credit scoring"))</code> we find that there have been 621 academic papers published.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for missing values</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#print(jcr['ISSN'].isnull().sum())</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#print(jcr['ISSN'].head())</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#print(df['issn'].isnull().sum())</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#print(df['issn'].head())</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tidy up both dataframes before merging</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>jcr<span class="op">=</span>jcr[jcr[<span class="st">'ISSN'</span>].notnull()]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>df<span class="op">=</span>df[df[<span class="st">'issn'</span>].notnull()]</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>jcr[<span class="st">'issn'</span>]<span class="op">=</span>jcr[<span class="st">'ISSN'</span>].<span class="bu">str</span>.replace(<span class="st">'-'</span>,<span class="st">''</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>jcr<span class="op">=</span>jcr.drop_duplicates(subset<span class="op">=</span><span class="st">'Journal name'</span>,keep<span class="op">=</span><span class="st">'first'</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df_q<span class="op">=</span>pd.merge(df, jcr, on<span class="op">=</span><span class="st">'issn'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>df_q.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>(389, 64)</code></pre>
+</div>
+</div>
+<section id="filtering-on-high-quality-journals" class="level3">
+<h3 class="anchored" data-anchor-id="filtering-on-high-quality-journals">Filtering on high quality journals</h3>
+<p>Bibliometric analysis, a robust methodology within the realm of scientometrics, has gained significant prominence in academic research (Van Raan, 2005; Glänzel &amp; Schubert, 2005). This approach involves quantitative analysis of scholarly publications, aiming to unveil patterns, trends, and relationships within the literature of a specific field or research domain (Chen, 2017; Bornmann, 2019). By systematically examining publication metadata, citation patterns, and co-authorship networks, bibliometric analysis offers valuable insights into the knowledge landscape, intellectual structure, and scholarly impact of a particular discipline (Leydesdorff &amp; Rafols, 2009; Ding et al., 2011).</p>
+<p>The application of bibliometric analysis spans across diverse fields, including science, technology, social sciences, and humanities (Van Eck &amp; Waltman, 2014; Borrego et al., 2016; Mikolov et al., 2013). Its utility lies in its ability to uncover patterns of knowledge dissemination, identify influential authors and institutions, trace the development of research themes over time, and assess the impact of scholarly works through citation analysis (Liu &amp; Rousseau, 2016; Glänzel et al., 2019). Furthermore, bibliometric analysis assists in identifying research gaps, directing research efforts, and guiding policy-making decisions (Larivière et al., 2013; Abramo et al., 2020).</p>
+<p>The Journal Impact Factor (JIF) has been widely used as a measure of journal quality and research impact. Despite its popularity, JIF has been criticised for various reasons, such as its susceptibility to manipulation and its potential to encourage questionable research practices. This paper provides an academic critique of Journal Impact Factors and discusses the potential improvements that can be made through the application of Eigenfactor metrics. We argue that Eigenfactor metrics can address some of the limitations of JIF, offering a more robust and nuanced approach to evaluating journal quality and research impact.</p>
+<p>Journal Impact Factors (JIFs) have long been a popular metric for evaluating the quality of academic journals. They are calculated by dividing the number of citations a journal receives in a given year by the total number of citable items published in that journal during the preceding two years. However, JIFs have been the subject of much criticism, primarily due to their potential for manipulation, bias, and incentivising questionable research practices (Seglen, 1997; Brembs et al., 2013).</p>
+<p>Critique of Journal Impact Factors:</p>
+<p>Inherent biases: JIFs are criticised for having inherent biases that favor journals in certain disciplines or with larger citation networks (Leydesdorff, 2008). This can result in an unfair comparison between journals in different fields and may lead to a skewed perception of research quality.</p>
+<p>Susceptibility to manipulation: The calculation of JIFs can be easily manipulated by practices such as self-citation, coercive citation, and salami slicing (Wilhite and Fong, 2012; Vanclay, 2012). This can result in inflated JIFs that do not accurately reflect the true impact or quality of a journal.</p>
+<p>Focus on short-term impact: JIFs place more emphasis on short-term impact rather than long-term significance by only considering citations from the preceding two years (Adler et al., 2009). This can result in the undervaluation of important research with a more gradual impact. However, a 5 year impact factor is also now being published to accomodate for differing citation peaks across various fields, although the original 2 year impact factor seems to be the more referred one.</p>
+<p>Encouraging questionable research practices: The pressure to publish in high-impact journals may lead to researchers engaging in questionable practices such as p-hacking or HARKing (Head et al., 2015; Kerr, 1998).</p>
+<p>Improvements through Eigenfactor Metrics:</p>
+<p>The interdisciplinary aspect of Fintech due to the technologies involved has seen research being carried out in various subject areas, with prominent contribution from Finance and Computer Science related academic sources. The challenge, however, remains to identify the top avenues based on quality due to the differing attributes and ranking methodologies. Variations in citation practices, differing lag between publication and citation, differing use of JCR-indexed literature for citation and distinct levels of impact factor inflation across research fields contribute to this challenge <span class="citation" data-cites="althouse2008">(<a href="#ref-althouse2008" role="doc-biblioref"><strong>althouse2008?</strong></a>)</span>. Eigenfactor metrics, which are derived from the Eigenfactor Score (ES) and the Article Influence Score (AIS), have been proposed as an alternative to JIFs (Bergstrom, 2007). These metrics are based on a journal’s citation network and take into account both the quality and quantity of citations (Bergstrom et al., 2008).</p>
+<p>Mitigating biases: By considering the entire citation network rather than just citations within a specific timeframe, Eigenfactor metrics can help reduce the biases associated with JIFs (West et al., 2010).</p>
+<p>Resistant to manipulation: Eigenfactor metrics are less susceptible to manipulation as they take into account the quality of citations and are less influenced by self-citation (Bergstrom et al., 2008).</p>
+<p>Emphasis on long-term impact: Unlike JIFs, Eigenfactor metrics do not emphasise short-term impact and can provide a more accurate representation of a journal’s long-term significance.</p>
+<p>Discouraging questionable research practices: As Eigenfactor metrics are less susceptible to manipulation, they may help discourage questionable research practices by reducing the emphasis on JIFs.</p>
+<p>Although Journal Impact Factors have been a popular metric for assessing journal quality, they are susceptible to various criticisms, including biases, susceptibility to manipulation, and their focus on short-term impact. In response to these limitations, Eigenfactor metrics have been proposed as an alternative approach. Eigenfactor metrics consider the entire citation network, mitigate biases, and are resistant to manipulation. They provide a more accurate representation of a journal’s long-term impact and discourage questionable research practices associated with JIFs. By adopting Eigenfactor metrics, the evaluation of journal quality and research impact can become more robust and nuanced.</p>
+<p>Eigenfactor metrics offer a quantitative approach to ranking the vast amount of research produced by numerous journals across various subject areas. It leverages the concept of eigenvector centrality, commonly used in linear algebra and with applications in quantitative finance. In the context of journal rankings, eigenvector centrality determines the importance of a journal based on the extent and strength of its connections with other journals through citations <span class="citation" data-cites="west2010">(<a href="#ref-west2010" role="doc-biblioref"><strong>west2010?</strong></a>)</span>. This approach provides a measure of influence within the citation network of journals.</p>
+<p>The primary metric used in Eigenfactor analysis is the Eigenfactor score. It considers cross-citation data among thousands of journals to assess the proportion of the total weighted citations received by a specific journal. By constructing a stochastic matrix using cross-citation data, the Eigenfactor score quantifies the influence of a journal based on both the volume and weightage of its citation network <span class="citation" data-cites="west_2008">(<a href="#ref-west_2008" role="doc-biblioref"><strong>west_2008?</strong></a>)</span>. Notably, this metric addresses biases such as self-citation and incorporates data from the last five years. Eigenfactor scores are normalized to 1 or 100 (as percentages) to indicate the proportion of value or influence generated by a journal, making them additive in nature. The underlying principle is that highly influential journals are likely to be cited by other influential journals.</p>
+<p>Compared to the traditional Journal Impact Factor approach, Eigenfactor metrics offer several advantages. They go beyond simple citation counts and control for differences across disciplines. For example, in the field of Economics, the Journal Impact Factor may rank Health Economic journals higher than top Economic journals due to the higher number of references per paper in health journals. Eigenfactor Metrics corrects for this by simulating a random walk on the citation network, adjusting the influence of journals with a large number of out-citations. These corrections help normalize differences in citation cultures across disciplines and multidisciplinary journals.</p>
+<p>It is important to note that Eigenfactor scores can be influenced by the size of a journal. For instance, the Journal of Health Economics, a 3-star ABS journal, may have a higher Eigenfactor (0.013) compared to Quantitative Economics, a 4-star ABS journal with a lower Eigenfactor (0.005). This discrepancy arises because the Eigenfactor measures the total influence of a journal, which can be affected by its size and citation patterns.</p>
+<p>The Eigenfactor analysis also includes the Article Influence Score, which complements the Eigenfactor Score by accounting for the size of the journal. The Article Influence Score is calculated by dividing the journal’s Eigenfactor Score by the number of articles published in that journal. This adjustment is necessary because larger journals with a greater number of articles are more likely to receive higher Eigenfactor scores due to the increased chances of visits. By providing a per-article influence score, the Article Influence Score enables a more meaningful comparison of journal impact, similar to the traditional Impact Factor metric <span class="citation" data-cites="west2010">(<a href="#ref-west2010" role="doc-biblioref"><strong>west2010?</strong></a>)</span>.</p>
+<p>By incorporating both the Eigenfactor Score and the Article Influence Score, Eigenfactor metrics offer a comprehensive approach to evaluating journal quality and research impact. These metrics consider the influence of a journal within the citation network, account for differences in citation cultures across disciplines, and address biases associated with traditional Journal Impact Factors. Researchers and stakeholders can utilize Eigenfactor metrics to gain a more nuanced understanding of journal influence and make informed decisions regarding scholarly publications.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the count of the papers published in each year</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'year'</span>]<span class="op">=</span>df[<span class="st">'coverDate'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.split(<span class="st">'-'</span>)[<span class="dv">0</span>])</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'year'</span>]<span class="op">=</span>df[<span class="st">'year'</span>].astype(<span class="bu">int</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'year'</span>].value_counts().sort_index().plot(kind<span class="op">=</span><span class="st">'bar'</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Give the plot a title</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"The number of papers published in each year"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Year"</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-4-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tabulate <span class="im">import</span> tabulate</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to wrap text</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wrap_text(text, max_width<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    chunks <span class="op">=</span> [text[i:i<span class="op">+</span>max_width] <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(text), max_width)]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join(chunks)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Wrap large text entries</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> data:</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    row[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> wrap_text(row[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate table</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(data, headers<span class="op">=</span>[<span class="st">'Name'</span>, <span class="st">'Email'</span>, <span class="st">'Description'</span>], tablefmt<span class="op">=</span><span class="st">'pipe'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the scopus search on the top 5 cited articles</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tabulate <span class="im">import</span> tabulate</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df<span class="op">=</span>df.sort_values(by<span class="op">=</span><span class="st">'citedby_count'</span>,ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(df[[<span class="st">'title'</span>,<span class="st">'citedby_count'</span>,<span class="st">'subtypeDescription'</span>,<span class="st">'coverDisplayDate'</span>,<span class="st">'description'</span>]].head(),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>               headers<span class="op">=</span>[<span class="st">'Title'</span>,<span class="st">'Citations'</span>,<span class="st">"Flavour"</span>,<span class="st">'Date Published'</span>,<span class="st">'Abstract'</span>], </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>               numalign<span class="op">=</span><span class="st">'left'</span>, tablefmt<span class="op">=</span><span class="st">'plain'</span>,showindex<span class="op">=</span><span class="va">False</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Title                                                                        Citations    Flavour           Date Published    Abstract
+A few useful things to know about machine learning                           1727         Review            October 2012      MACHINE LEARNING SYSTEMS automatically learn programs from data. This is often a very attractive alternative to manually constructing them, and in the last decade the use of machine learning has spread rapidly throughout computer science and beyond. Machine learning is used in Web search, spam filters, recommender systems, ad placement, credit scoring, fraud detection, stock trading, drug design, and many other applications. A recent report from the McKinsey Global Institute asserts that machine learning (a.k.a. data mining or predictive analytics) will be the driver of the next big wave of innovation. 15 Several fine textbooks are available to interested practitioners and researchers (for example, Mitchell 16 and Witten et al. 24). However, much of the "folk knowledge" that is needed to successfully develop machine learning applications is not readily available in them. As a result, many machine learning projects take much longer than necessary or wind up producing less-than-ideal results. Yet much of this folk knowledge is fairly easy to communicate. This is the purpose of this article. © 2012 ACM.
+A survey on the application of genetic programming to classification         432          Review            March 2010        Classification is one of the most researched questions in machine learning and data mining. A wide range of real problems have been stated as classification problems, for example credit scoring, bankruptcy prediction, medical diagnosis, pattern recognition, text categorization, software quality assessment, and many more. The use of evolutionary algorithms for training classifiers has been studied in the past few decades. Genetic programming (GP) is a flexible and powerful evolutionary technique with some features that can be very valuable and suitable for the evolution of classifiers. This paper surveys existing literature about the application of genetic programming to classification, to show the different ways in which this evolutionary algorithm can help in the construction of accurate and reliable classifiers. © 2009 IEEE.
+Using neural network ensembles for bankruptcy prediction and credit scoring  374          Article           May 2008          Bankruptcy prediction and credit scoring have long been regarded as critical topics and have been studied extensively in the accounting and finance literature. Artificial intelligence and machine learning techniques have been used to solve these financial decision-making problems. The multilayer perceptron (MLP) network trained by the back-propagation learning algorithm is the mostly used technique for financial decision-making problems. In addition, it is usually superior to other traditional statistical models. Recent studies suggest combining multiple classifiers (or classifier ensembles) should be better than single classifiers. However, the performance of multiple classifiers in bankruptcy prediction and credit scoring is not fully understood. In this paper, we investigate the performance of a single classifier as the baseline classifier to compare with multiple classifiers and diversified multiple classifiers by using neural networks based on three datasets. By comparing with the single classifier as the benchmark in terms of average prediction accuracy, the multiple classifiers only perform better in one of the three datasets. The diversified multiple classifiers trained by not only different classifier parameters but also different sets of training data perform worse in all datasets. However, for the Type I and Type II errors, there is no exact winner. We suggest that it is better to consider these three classifier architectures to make the optimal financial decision. © 2007 Elsevier Ltd. All rights reserved.
+A comparative assessment of ensemble learning for credit scoring             374          Article           January 2011      Both statistical techniques and Artificial Intelligence (AI) techniques have been explored for credit scoring, an important finance activity. Although there are no consistent conclusions on which ones are better, recent studies suggest combining multiple classifiers, i.e., ensemble learning, may have a better performance. In this study, we conduct a comparative assessment of the performance of three popular ensemble methods, i.e., Bagging, Boosting, and Stacking, based on four base learners, i.e., Logistic Regression Analysis (LRA), Decision Tree (DT), Artificial Neural Network (ANN) and Support Vector Machine (SVM). Experimental results reveal that the three ensemble methods can substantially improve individual base learners. In particular, Bagging performs better than Boosting across all credit datasets. Stacking and Bagging DT in our experiments, get the best performance in terms of average accuracy, type I error and type II error. © 2010 Elsevier Ltd. All rights reserved.
+Fairness-aware classifier with prejudice remover regularizer                 373          Conference Paper  2012              With the spread of data mining technologies and the accumulation of social data, such technologies and data are being used for determinations that seriously affect individuals' lives. For example, credit scoring is frequently determined based on the records of past credit data together with statistical prediction techniques. Needless to say, such determinations must be nondiscriminatory and fair in sensitive features, such as race, gender, religion, and so on. Several researchers have recently begun to attempt the development of analysis techniques that are aware of social fairness or discrimination. They have shown that simply avoiding the use of sensitive features is insufficient for eliminating biases in determinations, due to the indirect influence of sensitive information. In this paper, we first discuss three causes of unfairness in machine learning. We then propose a regularization approach that is applicable to any prediction algorithm with probabilistic discriminative models. We further apply this approach to logistic regression and empirically show its effectiveness and efficiency. © 2012 Springer-Verlag.</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the count of the papers published in each year in df_q using the AIS Quartile columns to colour the bars</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df_q[<span class="st">'year'</span>]<span class="op">=</span>df_q[<span class="st">'coverDate'</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.split(<span class="st">'-'</span>)[<span class="dv">0</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>df_q[<span class="st">'year'</span>]<span class="op">=</span>df_q[<span class="st">'year'</span>].astype(<span class="bu">int</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop the rows where the AIS Quartile is missing</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df_q_plot<span class="op">=</span>df_q[df_q[<span class="st">'AIS Quartile'</span>].notnull()]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create a stacked plot of the number of papers published in each year with AIS Quartile quality metric</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>df_q_plot.groupby([<span class="st">'year'</span>,<span class="st">'AIS Quartile'</span>]).size().unstack().plot(kind<span class="op">=</span><span class="st">'bar'</span>,stacked<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Give the plot a title</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"The number of papers published in each year with AIS Quartile quality metric"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Year"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Count"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">abs</span><span class="op">=</span>pd.read_csv(<span class="st">'JCR_ABS.csv'</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">abs</span><span class="op">=</span><span class="bu">abs</span>[<span class="bu">abs</span>[<span class="st">'ISSN'</span>].notnull()]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">abs</span>[<span class="bu">abs</span>[<span class="st">'Journal name'</span>].<span class="bu">str</span>.title()<span class="op">==</span><span class="st">"Journal Of Accounting &amp; Economics"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ISSN</th>
+<th data-quarto-table-cell-role="th">Field</th>
+<th data-quarto-table-cell-role="th">Journal Title</th>
+<th data-quarto-table-cell-role="th">Publisher Name</th>
+<th data-quarto-table-cell-role="th">Scopus</th>
+<th data-quarto-table-cell-role="th">Web of Science™</th>
+<th data-quarto-table-cell-role="th">AJG 2021</th>
+<th data-quarto-table-cell-role="th">AJG 2018</th>
+<th data-quarto-table-cell-role="th">AJG 2015</th>
+<th data-quarto-table-cell-role="th">ABS 2010</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">JIF Percentile</th>
+<th data-quarto-table-cell-role="th">JIF Quartile</th>
+<th data-quarto-table-cell-role="th">AIS Quartile</th>
+<th data-quarto-table-cell-role="th">Citable Items</th>
+<th data-quarto-table-cell-role="th">% of Articles in Citable items</th>
+<th data-quarto-table-cell-role="th">Cited Half-Life</th>
+<th data-quarto-table-cell-role="th">Citing Half-Life</th>
+<th data-quarto-table-cell-role="th">Total Articles</th>
+<th data-quarto-table-cell-role="th">eISSN</th>
+<th data-quarto-table-cell-role="th">ISSN.x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1879-1980</td>
+<td>ACCOUNT</td>
+<td>Journal of Accounting and Economics</td>
+<td>Elsevier</td>
+<td>scopus</td>
+<td>WoS</td>
+<td>4*</td>
+<td>4*</td>
+<td>4*</td>
+<td>4.0</td>
+<td>...</td>
+<td>94.14</td>
+<td>Q1</td>
+<td>Q1</td>
+<td>50.0</td>
+<td>100%</td>
+<td>14.9</td>
+<td>11.0</td>
+<td>50.0</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+<p>1 rows × 43 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter the scopus search on the top 5 cited articles</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tabulate <span class="im">import</span> tabulate</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df_q_plot<span class="op">=</span>df_q_plot.sort_values(by<span class="op">=</span><span class="st">'Article Influence Score'</span>,ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>tab_fmt<span class="op">=</span>tabulate(df_q_plot[[<span class="st">'title'</span>,<span class="st">'AIS Quartile'</span>,<span class="st">'Article Influence Score'</span>,<span class="st">'publicationName'</span>,<span class="st">'coverDisplayDate'</span>,<span class="st">'description'</span>]].head(),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>               headers<span class="op">=</span>[<span class="st">'Title'</span>,<span class="st">'Ranking'</span>,<span class="st">'Article Influence Score'</span>,<span class="st">"Journal"</span>,<span class="st">'Date Published'</span>,<span class="st">'Abstract'</span>,<span class="st">'Ranking'</span>], </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>               numalign<span class="op">=</span><span class="st">'left'</span>, tablefmt<span class="op">=</span><span class="st">'plain'</span>,showindex<span class="op">=</span><span class="va">False</span>,stralign<span class="op">=</span><span class="st">'left'</span>,colalign<span class="op">=</span><span class="st">'left'</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tab_fmt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                                                                     Title    Ranking    Article Influence Score                                   Journal  Date Published    Abstract
+Machine + man: A field experiment on the role of discretion in augmenting AI-based lending models                           Q1         5.728                      Journal of Accounting and Economics       1 November 2020   We assess the role of human discretion in lending outcomes using a randomized, controlled experiment. The lenders in our sample utilize a third party, machine-generated credit model as an input in their decision. We design a new feature for the credit-scoring platform – the slider feature – which invites lenders to incorporate additional discretion in their decision by adjusting the machine-based recommendation. We compare the loan outcomes for treatment lenders that randomly get the slider, relative to a control group. The treatment group's adjustments are predictive of forward looking portfolio characteristics – they show larger declines in future portfolio-level credit risk and larger increases in future sales orders, relative to the control group. The effects of our intervention are more pronounced when borrowers do not have social media accounts and in competitive markets. Our study provides insights about the role of human decisions, given the rapid evolution of machine-based lending models.
+A few useful things to know about machine learning                                                                          Q1         4.416                      Communications of the ACM                 October 2012      MACHINE LEARNING SYSTEMS automatically learn programs from data. This is often a very attractive alternative to manually constructing them, and in the last decade the use of machine learning has spread rapidly throughout computer science and beyond. Machine learning is used in Web search, spam filters, recommender systems, ad placement, credit scoring, fraud detection, stock trading, drug design, and many other applications. A recent report from the McKinsey Global Institute asserts that machine learning (a.k.a. data mining or predictive analytics) will be the driver of the next big wave of innovation. 15 Several fine textbooks are available to interested practitioners and researchers (for example, Mitchell 16 and Witten et al. 24). However, much of the "folk knowledge" that is needed to successfully develop machine learning applications is not readily available in them. As a result, many machine learning projects take much longer than necessary or wind up producing less-than-ideal results. Yet much of this folk knowledge is fairly easy to communicate. This is the purpose of this article. © 2012 ACM.
+Development of a Novel Transformation of Spiking Neural Classifier to an Interpretable Classifier                           Q1         3.433                      IEEE Transactions on Cybernetics          2022              This article presents a new approach for providing an interpretation for a spiking neural network classifier by transforming it to a multiclass additive model. The spiking classifier is a multiclass synaptic efficacy function-based leaky-integrate-fire neuron (Mc-SEFRON) classifier. As a first step, the SEFRON classifier for binary classification is extended to handle multiclass classification problems. Next, a new method is presented to transform the temporally distributed weights in a fully trained Mc-SEFRON classifier to shape functions in the feature space. A composite of these shape functions results in an interpretable classifier, namely, a directly interpretable multiclass additive model (DIMA). The interpretations of DIMA are also demonstrated using the multiclass Iris dataset. Further, the performances of both the Mc-SEFRON and DIMA classifiers are evaluated on ten benchmark datasets from the UCI machine learning repository and compared with the other state-of-the-art spiking neural classifiers. The performance study results show that Mc-SEFRON produces similar or better performances than other spiking neural classifiers with an added benefit of interpretability through DIMA. Furthermore, the minor differences in accuracies between Mc-SEFRON and DIMA indicate the reliability of the DIMA classifier. Finally, the Mc-SEFRON and DIMA are tested on three real-world credit scoring problems, and their performances are compared with state-of-the-art results using machine learning methods. The results clearly indicate that DIMA improves the classification accuracy by up to 12% over other interpretable classifiers indicating a better quality of interpretations on the highly imbalanced credit scoring datasets.
+Bridging the Gap between AI and Explainability in the GDPR: Towards Trustworthiness-by-Design in Automated Decision-Making  Q1         3.265                      IEEE Computational Intelligence Magazine  1 February 2022   Can satisfactory explanations for complex machine learning models be achieved in high-risk automated decision-making? How can such explanations be integrated into a data protection framework safeguarding a right to explanation? This article explores from an interdisciplinary point of view the connection between existing legal requirements for the explainability of AI systems set out in the General Data Protection Regulation (GDPR) and the current state of the art in the field of explainable AI. It studies the challenges of providing human legible explanations for current and future AI-based decision-making systems in practice, based on two scenarios of automated decision-making in credit scoring risks and medical diagnosis of COVID-19. These scenarios exemplify the trend towards increasingly complex machine learning algorithms in automated decision-making, both in terms of data and models. Current machine learning techniques, in particular those based on deep learning, are unable to make clear causal links between input data and final decisions. This represents a limitation for providing exact, human-legible reasons behind specific decisions, and presents a serious challenge to the provision of satisfactory, fair and transparent explanations. Therefore, the conclusion is that the quality of explanations might not be considered as an adequate safeguard for automated decision-making processes under the GDPR. Accordingly, additional tools should be considered to complement explanations. These could include algorithmic impact assessments, other forms of algorithmic justifications based on broader AI principles, and new technical developments in trustworthy AI. This suggests that eventually all of these approaches would need to be considered as a whole.
+Combining cluster analysis with classifier ensembles to predict financial distress                                          Q1         3.176                      Information Fusion                        2014              The ability to accurately predict business failure is a very important issue in financial decision-making. Incorrect decision-making in financial institutions is very likely to cause financial crises and distress. Bankruptcy prediction and credit scoring are two important problems facing financial decision support. As many related studies develop financial distress models by some machine learning techniques, more advanced machine learning techniques, such as classifier ensembles and hybrid classifiers, have not been fully assessed. The aim of this paper is to develop a novel hybrid financial distress model based on combining the clustering technique and classifier ensembles. In addition, single baseline classifiers, hybrid classifiers, and classifier ensembles are developed for comparisons. In particular, two clustering techniques, Self-Organizing Maps (SOMs) and k-means and three classification techniques, logistic regression, multilayer-perceptron (MLP) neural network, and decision trees, are used to develop these four different types of bankruptcy prediction models. As a result, 21 different models are compared in terms of average prediction accuracy and Type I &amp; II errors. By using five related datasets, combining Self-Organizing Maps (SOMs) with MLP classifier ensembles performs the best, which provides higher predication accuracy and lower Type I &amp; II errors. © 2011 Elsevier B.V. All rights reserved.</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="48">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">'ignore'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
 <section id="exploratory-data-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h3>
 <ol type="1">
@@ -157,11 +361,11 @@ div.csl-indent {
 <li>descriptive statistics for numerical variables</li>
 <li>descriptive statistics for categorical variables</li>
 </ol>
-<div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dat_raw <span class="op">=</span>pd.read_csv(<span class="st">'credit.csv'</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dat_raw.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell" data-execution_count="49">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the data</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>dat_raw <span class="op">=</span>pd.read_csv(<span class="st">'credit.csv'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dat_raw.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="49">
 <div>
 
 
@@ -295,10 +499,10 @@ div.csl-indent {
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check the data for missing values</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dat_raw.isnull().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell" data-execution_count="50">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check the data for missing values</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>dat_raw.isnull().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="50">
 <pre><code>checking_balance        0
 months_loan_duration    0
 credit_history          0
@@ -319,10 +523,10 @@ default                 0
 dtype: int64</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check data for categorical variables</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dat_raw.dtypes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell" data-execution_count="51">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check data for categorical variables</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>dat_raw.dtypes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="51">
 <pre><code>checking_balance        object
 months_loan_duration     int64
 credit_history          object
@@ -343,11 +547,11 @@ default                 object
 dtype: object</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run descriptive statistics and transpose the output then use tabulate to display the output</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tabulate <span class="im">import</span> tabulate</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sum_stats<span class="op">=</span>dat_raw.describe().transpose()</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(sum_stats, headers<span class="op">=</span><span class="st">'keys'</span>, tablefmt<span class="op">=</span><span class="st">'psql'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="52">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run descriptive statistics and transpose the output then use tabulate to display the output</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tabulate <span class="im">import</span> tabulate</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>sum_stats<span class="op">=</span>dat_raw.describe().transpose()</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(sum_stats, headers<span class="op">=</span><span class="st">'keys'</span>, tablefmt<span class="op">=</span><span class="st">'psql'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>+----------------------+---------+----------+-------------+-------+--------+--------+---------+-------+
 |                      |   count |     mean |         std |   min |    25% |    50% |     75% |   max |
@@ -362,18 +566,18 @@ dtype: object</code></pre>
 +----------------------+---------+----------+-------------+-------+--------+--------+---------+-------+</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check the distribution of the target variable</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">'default'</span>,data<span class="op">=</span>dat_raw, palette<span class="op">=</span><span class="st">'hls'</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="53">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check the distribution of the target variable</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">'default'</span>,data<span class="op">=</span>dat_raw, palette<span class="op">=</span><span class="st">'hls'</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="report_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
+<p><img src="report_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run descriptive statistics for the categorical features</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sum_stat<span class="op">=</span>dat_raw.describe(include<span class="op">=</span>[<span class="st">'object'</span>]).transpose()</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(sum_stat, headers<span class="op">=</span><span class="st">'keys'</span>, tablefmt<span class="op">=</span><span class="st">'psql'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="54">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run descriptive statistics for the categorical features</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>sum_stat<span class="op">=</span>dat_raw.describe(include<span class="op">=</span>[<span class="st">'object'</span>]).transpose()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(sum_stat, headers<span class="op">=</span><span class="st">'keys'</span>, tablefmt<span class="op">=</span><span class="st">'psql'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>+---------------------+---------+----------+----------------------+--------+
 |                     |   count |   unique | top                  |   freq |
@@ -391,10 +595,209 @@ dtype: object</code></pre>
 +---------------------+---------+----------+----------------------+--------+</code></pre>
 </div>
 </div>
+<div class="cell" data-execution_count="55">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#  load the raw data and use the LabelEncoder() function to convert the categorical features to numeric</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>dat<span class="op">=</span>dat_raw.copy()</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>le<span class="op">=</span>LabelEncoder()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="56">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># find the categorical variables in the data then using the label encoder to convert them to numeric</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>cat_vars<span class="op">=</span>dat.select_dtypes(include<span class="op">=</span>[<span class="st">'object'</span>]).columns</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> cat_vars:</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    dat[col]<span class="op">=</span>le.fit_transform(dat[col])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="65">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the gym environment</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gym</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> gym <span class="im">import</span> spaces</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CreditScoringEnv(gym.Env):</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, data):</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> data</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(CreditScoringEnv, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Action Space: Default yes or no (1 or 0) this is not the action but a precursor to the action</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.action_space <span class="op">=</span> spaces.Discrete(<span class="dv">2</span>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># State Space: You can define as many features as relevant from the data</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Assuming using age, income, credit score</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.observation_space <span class="op">=</span> spaces.Box(low<span class="op">=</span><span class="dv">0</span>, high<span class="op">=</span>np.inf, shape<span class="op">=</span>(<span class="dv">3</span>,))</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset(<span class="va">self</span>):</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_step <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.data.iloc[<span class="va">self</span>.current_step].values</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> step(<span class="va">self</span>, action):</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.current_step <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Terminal state</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.current_step <span class="op">&gt;=</span> <span class="bu">len</span>(<span class="va">self</span>.data):</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>            done <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.current_step <span class="op">=</span> <span class="dv">0</span>  <span class="co"># Reset for the next episode</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">None</span>, <span class="dv">0</span>, done, {}</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>        state <span class="op">=</span> <span class="va">self</span>.data.iloc[<span class="va">self</span>.current_step].values</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>        reward <span class="op">=</span> <span class="va">self</span>.get_reward(state, action)</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> state, reward, <span class="va">False</span>, {}</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_reward(<span class="va">self</span>, state, action):</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Define your reward function based on the state and action</span></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For simplicity, assume that approving a good loan gets +1</span></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># and approving a bad loan gets -2 reward.</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># You would normally use a more complex function based on the data.</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> state[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> action <span class="op">==</span> <span class="dv">1</span>:  <span class="co"># Good loan and approved</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> state[<span class="op">-</span><span class="dv">1</span>] <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> action <span class="op">==</span> <span class="dv">1</span>:  <span class="co"># Bad loan and approved</span></span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="op">-</span><span class="dv">2</span></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">0</span>  <span class="co"># Otherwise, no reward or loss</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="66">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># split the data into states and actions</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>states_x<span class="op">=</span>dat.drop([<span class="st">'default'</span>],axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>actions_y<span class="op">=</span>dat[<span class="st">'default'</span>]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># normalize the data</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>scaler<span class="op">=</span>StandardScaler()</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>states_x_scaled<span class="op">=</span>scaler.fit_transform(states_x)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co"># split the data into training and testing sets</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#from sklearn.model_selection import train_test_split</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co">#X_train,X_test,y_train,y_test=train_test_split(actions_y,states_x_scaled,test_size=.3,random_state=123)</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the numpy array back to DataFrame</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>states_x_scaled_df <span class="op">=</span> pd.DataFrame(states_x_scaled, columns<span class="op">=</span>states_x.columns)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Concatenate</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>dat_combined <span class="op">=</span> pd.concat([states_x_scaled_df, actions_y], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="68">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reinforcement Learning</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a> <span class="co">#Initialize the Gym environment with the new DataFrame</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>env <span class="op">=</span> CreditScoringEnv(data<span class="op">=</span>dat_combined)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> env.reset()</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize Q-table with zeros</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> np.zeros([<span class="bu">len</span>(env.data), env.action_space.n])</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Hyperparameters</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>gamma <span class="op">=</span> <span class="fl">0.9</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>epsilon <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Training the Q-learning model</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> episode <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10001</span>):</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    done <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> done:</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'Type of state: </span><span class="sc">{</span><span class="bu">type</span>(state)<span class="sc">}</span><span class="ss">, Type of action: </span><span class="sc">{</span><span class="bu">type</span>(action)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f'Value of state: </span><span class="sc">{</span>state<span class="sc">}</span><span class="ss">, Value of action: </span><span class="sc">{</span>action<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Epsilon-greedy action selection</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> random.uniform(<span class="dv">0</span>, <span class="dv">1</span>) <span class="op">&lt;</span> epsilon:</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>            action <span class="op">=</span> env.action_space.sample()</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>            action <span class="op">=</span> np.argmax(Q[state])</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>        next_state, reward, done, _ <span class="op">=</span> env.step(action)</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Update Q-value using the Bellman equation for Q-learning which is defined as:</span></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Q(s,a) = (1 - alpha) * Q(s,a) + alpha * (reward + gamma * max Q(s',a')) DOUBLE CHECK THIS</span></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>        old_value <span class="op">=</span> Q[state, action]</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>        next_max <span class="op">=</span> np.<span class="bu">max</span>(Q[next_state])</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>        new_value <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> alpha) <span class="op">*</span> old_value <span class="op">+</span> alpha <span class="op">*</span> (reward <span class="op">+</span> gamma <span class="op">*</span> next_max)</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>        Q[state, action] <span class="op">=</span> new_value</span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>        state <span class="op">=</span> next_state</span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reduce epsilon to shift from exploration to exploitation (i.e. less random actions as the agent learns)</span></span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epsilon <span class="op">&gt;</span> <span class="fl">0.01</span>:</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>        epsilon <span class="op">*=</span> <span class="fl">0.995</span></span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a><span class="co"># At this point, Q contains the Q-values, and you can derive the policy from it.</span></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a><span class="co"># For example, you can get the policy for the first state as follows:</span></span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(np.argmax(Q[<span class="dv">0</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Type of state: &lt;class 'numpy.ndarray'&gt;, Type of action: &lt;class 'int'&gt;
+Value of state: [-0.4645937  -1.23647786 -1.01055883  0.90853382 -0.74513141  1.66990103
+  1.09776229  0.91847717  1.04698668  2.76645648  0.21834568 -0.13371046
+  1.02707891 -0.2896393  -0.42828957  1.21459768  0.        ], Value of action: 1</code></pre>
+</div>
+<div class="cell-output cell-output-error">
+<pre><code>IndexError: arrays used as indices must be of integer (or boolean) type</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="82">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>Q[<span class="dv">1</span>:<span class="dv">10</span>, <span class="dv">1</span>:<span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="82">
+<pre><code>array([[0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.],
+       [0.]])</code></pre>
+</div>
+</div>
+<p>Incorporating fairness criteria into an MDP for credit scoring is crucial to ensure that the decision-making process does not discriminate against certain groups based on sensitive attributes like gender, race, or age. There are different notions of fairness that can be applied, such as demographic parity, equalized odds, or disparate impact. One way to do this would be to modify the State Space by including sensitive attributes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">## 1. Modify the State Space</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># State Space: Now also includes a sensitive attribute (e.g., gender)</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.observation_space <span class="op">=</span> spaces.Box(low<span class="op">=</span><span class="dv">0</span>, high<span class="op">=</span>np.inf, shape<span class="op">=</span>(<span class="dv">4</span>,))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="modify-the-reward-function" class="level3">
+<h3 class="anchored" data-anchor-id="modify-the-reward-function">2. Modify the Reward Function</h3>
+<p>The reward function is where you can apply your fairness constraints. For example, you can add a penalty term if the decision violates your fairness criteria.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_reward(<span class="va">self</span>, state, action):</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    sensitive_attribute <span class="op">=</span> state[<span class="op">-</span><span class="dv">2</span>]  <span class="co"># Assuming the second last feature is the sensitive attribute</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    loan_status <span class="op">=</span> state[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    reward <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> loan_status <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> action <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        reward <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> loan_status <span class="op">==</span> <span class="dv">0</span> <span class="kw">and</span> action <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>        reward <span class="op">=</span> <span class="op">-</span><span class="dv">2</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply fairness penalty</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    fairness_penalty <span class="op">=</span> <span class="va">self</span>.calculate_fairness_penalty(state, action)</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    reward <span class="op">-=</span> fairness_penalty</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> reward</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_fairness_penalty(<span class="va">self</span>, state, action):</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Implement your fairness metric here, for example, demographic parity</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For simplicity, let's assume we subtract a penalty if loan is approved</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for a disadvantaged group member</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    sensitive_attribute <span class="op">=</span> state[<span class="op">-</span><span class="dv">2</span>]</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> sensitive_attribute <span class="op">==</span> <span class="st">'disadvantaged'</span> <span class="kw">and</span> action <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">0.5</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="update-the-q-learning-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="update-the-q-learning-algorithm">3. Update the Q-Learning Algorithm</h2>
+<p>You might also want to update your learning algorithm to consider fairness, for instance by adjusting the Q-value update rule. In the simplest case, the fairness penalty can be included in the reward, as above, and no changes to the algorithm are required.</p>
+<p>However, more advanced techniques might involve multi-objective reinforcement learning, where you would have one objective for maximizing loan profitability and another for fairness. In this case, you would need to update the Q-value update rule to consider both objectives.</p>
+<section id="monitor-fairness-over-time" class="level3">
+<h3 class="anchored" data-anchor-id="monitor-fairness-over-time">4. Monitor Fairness Over Time</h3>
+<p>As the model is training, keep track of fairness metrics over time. You might also have to regularly audit your system to ensure that it remains fair as more data becomes available.</p>
+<p>Incorporating fairness criteria into an MDP is a complex task that may involve significant design and ethical considerations. Given your background in finance, technology, and data science, you’re in a good position to take on this challenge by developing methods that are both effective and equitable.</p>
 </section>
 </section>
 <section id="methodology" class="level2">
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
+<p>When using the markov chain model, we need to convert the categorical variables to numeric. We will use the LabelEncoder function from the sklearn package to convert the categorical variables to numeric. Using risk levels as states, we can build a markov decision process to predict the probability of default.</p>
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
@@ -413,6 +816,9 @@ dtype: object</code></pre>
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-crook.2006" class="csl-entry" role="listitem">
 Crook, Jonathan N., David B. Edelman, and Lyn C. Thomas. 2007. <span>“<span class="nocase">Recent developments in consumer credit risk assessment</span>.”</span> <em>European Journal of Operational Research</em> 183 (3): 1447–65. <a href="https://doi.org/10.1016/j.ejor.2006.09.100">https://doi.org/10.1016/j.ejor.2006.09.100</a>.
+</div>
+<div id="ref-durand.1941" class="csl-entry" role="listitem">
+Durand, David. 1941. <em>Risk Elements in Consumer Instalment Financing</em>. dura41-1. National bureau of economic research.
 </div>
 </div></section></div></main>
 <!-- /main column -->
